@@ -10,6 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Timer
+import java.util.TimerTask
 
 
 class MainActivity : AppCompatActivity() {
@@ -18,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     private var current: Int = 0
     private var duration: Int = 10
+    private var isRunning = false
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,13 +30,19 @@ class MainActivity : AppCompatActivity() {
 
         binding.txtMain.text = "clock"
         current = duration
-        binding.fabMain.setOnClickListener {
 
+        binding.fabMain.setOnClickListener {
             GlobalScope.launch {
-                startCountDownWorkDelay()
+                toggleIsRunning()
+                // startCountDownWorkDelay()
+                startCountDownTimerScheduler()
             }
 
         }
+    }
+
+    fun toggleIsRunning() {
+        isRunning = !isRunning
     }
 
     private fun startCountDownWorkDelay() {
@@ -55,8 +64,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun startCountDownTimerScheduler() {
+        val timer = Timer()
+
+        val task = object : TimerTask() {
+
+            override fun run() {
+                if (isRunning) {
+                    if (current > 0) {
+                        Log.d("sec", current.toString())
+
+                        runOnUiThread {
+                            binding.txtMain.text = current.toString()
+                        }
+                        current--
+                    } else {
+                        current = 0
+                        Log.d("sec", "0")
+
+                        runOnUiThread {
+                            binding.txtMain.text = current.toString()
+                        }
+                        timer.cancel()
+                        isRunning = false
+                        current = duration
+                    }
+                }
+            }
+        }
+        timer.scheduleAtFixedRate(task, 0, 1000)
+    }
+
     private fun startCountDownSystemClock() {}
-    private fun startCountDownTimerSchedueler() {}
+
     private fun startCountDownWorkManager() {}
 
 }

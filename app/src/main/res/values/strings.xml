@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TimerFlow</string>
+    <string name="fab_main">FAB</string>
+</resources>
